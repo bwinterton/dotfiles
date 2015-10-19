@@ -1,0 +1,44 @@
+## Modified commands
+alias grep='grep --color=auto'
+alias df='df -h'
+alias du='du -c -h'
+alias mkdir='mkdir -p -v'
+
+## Real clear
+alias cls='printf \033c'
+
+## Priveleged shortcuts
+if ((UID != 0)); then
+    alias scat='sudo cat'
+    alias svim='sudo vim'
+fi
+
+## ls
+alias ls='ls -hF --color=auto --group-directories-first'
+alias lr='ls -R'                                 #recursive ls
+alias ll='ls -l'
+alias la='ll -A'
+alias lx='ll -BX'                             # sort by extension
+alias lz='ll -rS'                               # sort by size
+alias lt='ll -rt'                                # sort by date
+
+## Go
+alias gogogo='cd ~/dev/go/src'
+
+## Safety
+alias rm='rm -I'
+
+## Can't fix stupid
+alias :q="echo This isn\'t vim stupid"
+alias :wq="echo This isn\'t vim stupid"
+
+## Pacman
+alias pacup='sudo pacman -Syu'
+alias pacin='sudo pacman -S'
+alias pacinf='sudo pacman -U'
+alias pacrm='sudo pacman -R'
+alias pacrma='sudo pacman -Rns'
+alias pacse='pacman -Ss'
+alias paco='pacman -Qdt'
+alias pacinfo='pacman -Si'
+alias pacdesc='pacman -Qi'

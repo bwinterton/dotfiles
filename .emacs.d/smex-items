@@ -1,0 +1,30 @@
+
+;; ----- smex-history -----
+(
+ ansi-term
+ revert-buffer
+ erc
+ irc
+ comment-dwim
+ comment-indent
+ indent-new-comment-line
+)
+
+;; ----- smex-data -----
+(
+ (eval-buffer . 2)
+ (package-install . 2)
+ (package-list-packages . 1)
+ (getenv . 1)
+ (ansi-term . 15)
+ (recover-this-file . 1)
+ (recover-session . 1)
+ (comment-region . 1)
+ (comment-indent-new-line . 1)
+ (indent-new-comment-line . 1)
+ (comment-indent . 1)
+ (comment-dwim . 1)
+ (irc . 1)
+ (erc . 1)
+ (revert-buffer . 1)
+)
