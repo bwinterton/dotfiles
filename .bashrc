@@ -7,3 +7,6 @@
 
 alias ls='ls --color=auto'
 PS1='[\u@\h \W]\$ '
+
+## Load the zsh aliases here as well
+source ~/.zsh_aliases
