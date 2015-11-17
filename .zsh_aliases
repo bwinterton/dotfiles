@@ -14,7 +14,11 @@ if ((UID != 0)); then
 fi
 
 ## ls
-alias ls='ls -hF --color=auto --group-directories-first'
+if [[ `uname` == 'Darwin' ]]; then
+    alias ls='gls -hF --color=auto --group-directories-first'
+else
+    alias ls='ls -hF --color=auto --group-directories-first'
+fi
 alias lr='ls -R'                                 #recursive ls
 alias ll='ls -l'
 alias la='ll -A'
