@@ -26,15 +26,25 @@ alias lx='ll -BX'                             # sort by extension
 alias lz='ll -rS'                               # sort by size
 alias lt='ll -rt'                                # sort by date
 
-## Go
-alias gogogo='cd ~/dev/go/src'
-
 ## Safety
 alias rm='rm -I'
 
 ## Can't fix stupid
 alias :q="echo This isn\'t vim stupid"
 alias :wq="echo This isn\'t vim stupid"
+
+## Convenience Jumps
+alias gogogo='cd ~/dev/go/src'
+alias devme='cd ~/dev' 
+
+## Git
+alias gp='git push'
+alias gpl='git pull'
+alias gc='git commit'
+alias ga='git add'
+alias gcm='git commit -m'
+alias gca='git commit -a'
+alias gcam='git commit -am'
 
 ## Pacman
 alias pacup='sudo pacman -Syu'
