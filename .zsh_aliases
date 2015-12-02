@@ -38,6 +38,7 @@ alias gogogo='cd ~/dev/go/src'
 alias devme='cd ~/dev' 
 
 ## Git
+alias gs='git status'
 alias gp='git push'
 alias gpl='git pull'
 alias gc='git commit'
