@@ -13,12 +13,17 @@ if ((UID != 0)); then
     alias svim='sudo vim'
 fi
 
-## ls
+## OSX gnu coreutils replacements
 if [[ `uname` == 'Darwin' ]]; then
-    alias ls='gls -hF --color=auto --group-directories-first'
+    LS_CMD='gls'
+    RM_CMD='grm'
 else
-    alias ls='ls -hF --color=auto --group-directories-first'
+    LS_CMD='ls'
+    RM_CMD='rm'
 fi
+
+## ls
+alias ls='$LS_CMD -hF --color=auto --group-directories-first'
 alias lr='ls -R'                                 #recursive ls
 alias ll='ls -l'
 alias la='ll -A'
@@ -27,7 +32,7 @@ alias lz='ll -rS'                               # sort by size
 alias lt='ll -rt'                                # sort by date
 
 ## Safety
-alias rm='rm -I'
+alias rm='$RM_CMD -I'
 
 ## Can't fix stupid
 alias :q="echo This isn\'t vim stupid"
