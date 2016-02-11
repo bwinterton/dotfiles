@@ -33,7 +33,7 @@
 (evil-mode 1)
 
 ;; Go Mode
-(setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo $GOPATH'")) ; set the $GOPATH
+(setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
 (add-to-list 'load-path "~/.emacs.d/go")
 (require 'go-mode-autoloads)
 (defun go-awesome-mode-hook ()
