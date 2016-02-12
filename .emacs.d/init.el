@@ -17,6 +17,9 @@
 
 (when window-system (set-exec-path-from-PATH)) ; Only set the path when run in windowed mode (not necessary in shell) 
 
+;; Set default font
+(set-face-attribute 'default t :font "Anonymous Pro-12")
+
 ;; Move backups to a central location and tuning
 (setq backup-directory-alist `(("." . "~/.emacs-saves")))
 (setq backup-by-copying t)
