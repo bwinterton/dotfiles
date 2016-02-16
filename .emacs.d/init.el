@@ -1,3 +1,11 @@
+;;; init.el -- Main initalization script
+
+;;; Commentary:
+;; Copyright (c) 2016 Brayden Winterton
+;; Author: Brayden Winterton <bwinterton@gmail.com>
+
+;;; Code:
+
 ;; Include Marmalade and MELPA repos
 (require 'package)
 (push '("marmalade" . "http://marmalade-repo.org/packages")
@@ -8,6 +16,7 @@
 
 ;; Set exec-path from PATH
 (defun set-exec-path-from-PATH ()
+  "Set the 'exec-path' variable to include the $PATH from the shell when in windowed mode."
   (let ((path-from-shell (replace-regexp-in-string
 			  "[ \t\n]*$"
 			  ""
@@ -15,7 +24,7 @@
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
-(when window-system (set-exec-path-from-PATH)) ; Only set the path when run in windowed mode (not necessary in shell) 
+(when window-system (set-exec-path-from-PATH)) ; Only set the path when run in windowed mode (not necessary in shell)
 
 ;; Set default font
 (set-face-attribute 'default t :font "Anonymous Pro-12")
@@ -40,7 +49,8 @@
 (add-to-list 'load-path "~/.emacs.d/go")
 (require 'go-mode-autoloads)
 (defun go-awesome-mode-hook ()
-  (setq gofmt-command "goimports")
+  "Run all of the configuration settings for Golang when this hook is called."
+  (defvar gofmt-command "goimports")
   (setq tab-width 4)
   (setq indent-tabs-mode 1)
   ; Call Gofmt before saving
@@ -49,11 +59,15 @@
   (local-set-key (kbd "C-g j") 'godef-jump))
 
 (add-hook 'go-mode-hook 'go-awesome-mode-hook)
-(require 'go-autocomplete) 
+(require 'go-autocomplete)
   
 ;; Flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
+(defvar flycheck-check-syntax-automatically '(mode-enabled save))
+
+
+;; Emacs Lisp Mode
+(setq-default flycheck-emacs-lisp-load-path 'inherit) ; Inherit the loadpath for checks
 
 ;; Rainbow Delimiters
 (require 'rainbow-delimiters)
@@ -79,3 +93,15 @@
 ;; Auto-complete mode
 (require 'auto-complete-config)
 (ac-config-default)
+
+;; Disable bell for certain circumstances
+(defun intelligent-bell ()
+  "Disable the bell for certain common and personally unwanted circumstances."
+  (unless (memq this-command
+        '(isearch-abort abort-recursive-edit exit-minibuffer
+              keyboard-quit mwheel-scroll down up next-line previous-line
+              backward-char forward-char))
+    (ding)))
+(setq ring-bell-function 'intelligent-bell)
+
+;;; init.el ends here
