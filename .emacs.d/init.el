@@ -15,7 +15,7 @@
 (package-initialize)
 
 ;; Set exec-path from PATH
-(defun set-exec-path-from-PATH ()
+(defun set-exec-path-from-env()
   "Set the 'exec-path' variable to include the $PATH from the shell when in windowed mode."
   (let ((path-from-shell (replace-regexp-in-string
 			  "[ \t\n]*$"
@@ -24,10 +24,16 @@
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
-(when window-system (set-exec-path-from-PATH)) ; Only set the path when run in windowed mode (not necessary in shell)
+(when window-system (set-exec-path-from-env)) ; Only set the path when run in windowed mode (not necessary in shell)
+
+;; Tune Emacs GC (This is mostly to speed up flx-ido)
+(setq gc-cons-threshold 20000000) ; Set emacs to run GC every 20MB allocated (default is .76MB)
 
 ;; Set default font
-(set-face-attribute 'default t :font "Anonymous Pro-12")
+(add-to-list 'default-frame-alist '(font . "Anonymous Pro-12"))
+
+;; Inhibit startup message
+(setq inhibit-startup-message t)
 
 ;; Move backups to a central location and tuning
 (setq backup-directory-alist `(("." . "~/.emacs-saves")))
@@ -40,14 +46,23 @@
 ;; Zenburn theme
 (load-theme 'zenburn t)
 
+;; Require use-package when compiling
+(eval-when-compile
+  (require 'use-package))
+
 ;; Evil Mode
-(require 'evil)
-(evil-mode 1)
+(use-package evil
+  :ensure t
+  :init (evil-mode 1))
 
 ;; Go Mode
-(setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
-(add-to-list 'load-path "~/.emacs.d/go")
-(require 'go-mode-autoloads)
+(use-package go-mode
+  :ensure t
+  :init
+  (setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
+  :config (add-hook 'go-mode-hook #'go-awesome-mode-hook))
+
+
 (defun go-awesome-mode-hook ()
   "Run all of the configuration settings for Golang when this hook is called."
   (defvar gofmt-command "goimports")
@@ -58,49 +73,67 @@
   ; Godef jump key binding
   (local-set-key (kbd "C-g j") 'godef-jump))
 
-(add-hook 'go-mode-hook 'go-awesome-mode-hook)
-(require 'go-autocomplete)
+;; Go Autocomplete
+(use-package go-autocomplete
+  :load-path "go")
   
 ;; Flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
-(defvar flycheck-check-syntax-automatically '(mode-enabled save))
-
-
-;; Emacs Lisp Mode
-(setq-default flycheck-emacs-lisp-load-path 'inherit) ; Inherit the loadpath for checks
-
+(use-package flycheck
+  :ensure t
+  :config
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+  (setq-default flycheck-emacs-lisp-load-path 'inherit) ; Inherit the loadpath for elisp checks
+  (defvar flycheck-check-syntax-automatically '(mode-enabled save)))
+  
 ;; Rainbow Delimiters
-(require 'rainbow-delimiters)
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 ;; Smex
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command) ; Old M-x
-
+(use-package smex
+  :ensure t
+  :init
+  (smex-initialize)
+  :config
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)) ; Old M-x
+  
 ;; Flx-Ido Mode
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil) ; disble ido faces to see flx highlights
+(use-package flx-ido
+  :ensure t
+  :functions ido-everywhere
+  :init
+  (ido-mode 1)
+  (ido-everywhere 1)
+  (flx-ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil)) ; disble ido faces to see flx highlights
 
-;; Tune Emacs GC (This is mostly to speed up flx-ido)
-(setq gc-cons-threshold 20000000) ; Set emacs to run GC every 20MB allocated (default is .76MB)
 
 ;; Auto-complete mode
-(require 'auto-complete-config)
-(ac-config-default)
+(use-package auto-complete
+  :ensure t
+  :init
+  (ac-config-default))
 
 ;; Disable bell for certain circumstances
 (defun intelligent-bell ()
   "Disable the bell for certain common and personally unwanted circumstances."
   (unless (memq this-command
-        '(isearch-abort abort-recursive-edit exit-minibuffer
-              keyboard-quit mwheel-scroll down up next-line previous-line
-              backward-char forward-char))
+		'(isearch-abort
+		  abort-recursive-edit
+		  exit-minibuffer
+		  keyboard-quit
+		  mwheel-scroll
+		  down
+		  up
+		  next-line
+		  previous-line
+		  backward-char
+		  forward-char))
     (ding)))
 (setq ring-bell-function 'intelligent-bell)
 
