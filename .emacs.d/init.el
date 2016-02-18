@@ -112,6 +112,11 @@
   (setq ido-enable-flex-matching t)
   (setq ido-use-faces nil)) ; disble ido faces to see flx highlights
 
+;; Magit
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status)
+  :init (global-magit-file-mode))
 
 ;; Auto-complete mode
 (use-package auto-complete
