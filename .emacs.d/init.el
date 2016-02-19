@@ -118,6 +118,13 @@
   :bind ("C-x g" . magit-status)
   :init (global-magit-file-mode))
 
+;; Helm
+(use-package helm
+  :ensure t
+  :init
+  (require 'helm-config)
+  (helm-mode 1))
+
 ;; Auto-complete mode
 (use-package auto-complete
   :ensure t
