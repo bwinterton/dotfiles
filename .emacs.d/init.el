@@ -91,27 +91,6 @@
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-;; Smex
-(use-package smex
-  :ensure t
-  :init
-  (smex-initialize)
-  :config
-  (global-set-key (kbd "M-x") 'smex)
-  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)) ; Old M-x
-  
-;; Flx-Ido Mode
-(use-package flx-ido
-  :ensure t
-  :functions ido-everywhere
-  :init
-  (ido-mode 1)
-  (ido-everywhere 1)
-  (flx-ido-mode 1)
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil)) ; disble ido faces to see flx highlights
-
 ;; Magit
 (use-package magit
   :ensure t
@@ -123,7 +102,11 @@
   :ensure t
   :init
   (require 'helm-config)
-  (helm-mode 1))
+  (helm-mode 1)
+  (defvar helm-buffers-fuzzy-matching t)
+  (defvar helm-recentf-fuzzy-match t)
+  (setq helm-autoresize-mode t))
+
 
 ;; Auto-complete mode
 (use-package auto-complete
