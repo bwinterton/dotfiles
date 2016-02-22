@@ -8,8 +8,6 @@
 
 ;; Include Marmalade and MELPA repos
 (require 'package)
-(push '("marmalade" . "http://marmalade-repo.org/packages")
-      package-archives)
 (push '("melpa" . "http://melpa.milkbox.net/packages/")
       package-archives)
 (package-initialize)
@@ -53,6 +51,7 @@
 ;; Evil Mode
 (use-package evil
   :ensure t
+  :functions evil-set-jump
   :init (evil-mode 1))
 
 ;; Go Mode
@@ -100,13 +99,17 @@
 ;; Helm
 (use-package helm
   :ensure t
+  :bind ("M-x" . helm-M-x)
   :init
   (require 'helm-config)
   (helm-mode 1)
   (defvar helm-buffers-fuzzy-matching t)
   (defvar helm-recentf-fuzzy-match t)
-  (setq helm-autoresize-mode t))
+  (setq helm-autoresize-mode t)
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
 
+;; Electric pair mode
+(electric-pair-mode t)
 
 ;; Auto-complete mode
 (use-package auto-complete
