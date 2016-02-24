@@ -117,13 +117,30 @@
   :init
   (ac-config-default))
 
+;; Projectile
+(use-package projectile
+  :ensure t
+  :init
+  (projectile-global-mode))
+
+;; Flx-ido for improved ido
+(use-package flx-ido
+  :ensure t
+  :functions ido-everywhere
+  :init
+  (ido-mode nil)
+  (ido-everywhere nil)
+  (flx-ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil))
+
 ;; Disable bell for certain circumstances
 (defun intelligent-bell ()
   "Disable the bell for certain common and personally unwanted circumstances."
   (unless (memq this-command
 		'(isearch-abort
 		  abort-recursive-edit
-		  exit-minibuffer
+	 	  exit-minibuffer
 		  keyboard-quit
 		  mwheel-scroll
 		  down
