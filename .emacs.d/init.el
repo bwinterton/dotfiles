@@ -115,6 +115,7 @@
   (helm-mode 1)
   (defvar helm-buffers-fuzzy-matching t)
   (defvar helm-recentf-fuzzy-match t)
+  (defvar helm-M-x-fuzzy-match t)
   (setq helm-autoresize-mode t)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
 
@@ -132,17 +133,6 @@
   :ensure t
   :init
   (projectile-global-mode))
-
-;; Flx-ido for improved ido
-(use-package flx-ido
-  :ensure t
-  :functions ido-everywhere
-  :init
-  (ido-mode nil)
-  (ido-everywhere nil)
-  (flx-ido-mode 1)
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil))
 
 ;; Disable bell for certain circumstances
 (defun intelligent-bell ()
