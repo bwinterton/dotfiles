@@ -6,6 +6,13 @@
 
 ;;; Code:
 
+;; Set the scratch message *Inspiration Station*
+(setq initial-scratch-message "\
+;;   Success is no accident. It is hard work,
+;; perseverance, learning, studying, sacrifice,
+;; and most of all, love of what you are doing.
+;;                 - Pele")
+
 ;; Include Marmalade and MELPA repos
 (require 'package)
 (push '("melpa" . "http://melpa.milkbox.net/packages/")
