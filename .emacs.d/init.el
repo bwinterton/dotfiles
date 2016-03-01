@@ -133,8 +133,12 @@
   :ensure t
   :init
   (projectile-global-mode)
-  (setq projectile-completion-system 'helm)
-  (helm-projectile-on))
+  (setq projectile-completion-system 'helm))
+
+;; Helm-projectile
+(use-package helm-projectile
+  :ensure t
+  :init (helm-projectile-on))
 
 ;; Disable bell for certain circumstances
 (defun intelligent-bell ()
