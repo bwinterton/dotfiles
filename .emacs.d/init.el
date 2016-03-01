@@ -49,10 +49,10 @@
       kept-old-versions 2
       version-control t)
 
-;; Monokai theme
-(use-package monokai-theme
-  :ensure t
-  :init (load-theme 'monokai t))
+;; Material theme
+(use-package material-theme
+  :load-path "themes"
+  :config (load-theme 'material t))
 
 ;; Require use-package when compiling
 (eval-when-compile
