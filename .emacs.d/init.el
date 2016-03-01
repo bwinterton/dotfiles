@@ -48,8 +48,10 @@
       kept-old-versions 2
       version-control t)
 
-;; Zenburn theme
-(load-theme 'zenburn t)
+;; Monokai theme
+(use-package monokai-theme
+  :ensure t
+  :init (load-theme 'monokai t))
 
 ;; Require use-package when compiling
 (eval-when-compile
