@@ -14,6 +14,10 @@
 ;;                 - Pele
 ")
 
+
+;; Include term for use of hooks later on
+(require 'term)
+
 ;; Include Marmalade and MELPA repos
 (require 'package)
 (push '("melpa" . "http://melpa.milkbox.net/packages/")
@@ -59,22 +63,26 @@
   (require 'use-package))
 
 ;; Evil Mode
+;; TODO: figure out why the following functions throw warnings and are not suppressed.
+(declare-function evil-normal-state-p "evil")  ;; To supress warnings
+(declare-function evil-motion-state-p "evil")  ;; To supress warnings
+(declare-function evil-set-jump "evil") ;; To supress warnings
 (use-package evil
   :ensure t
-  :functions evil-set-jump
-  :init (evil-mode 1))
+  :init
+  (evil-mode 1))
 
 ;; Go Mode
 (use-package go-mode
   :ensure t
   :init
   (setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
-  :config (add-hook 'go-mode-hook #'go-awesome-mode-hook))
+  (setq gofmt-command "goimports")
+  (add-hook 'go-mode-hook #'go-awesome-mode-hook))
 
 
 (defun go-awesome-mode-hook ()
   "Run all of the configuration settings for Golang when this hook is called."
-  (defvar gofmt-command "goimports")
   (setq tab-width 4)
   (setq indent-tabs-mode 1)
   ; Call Gofmt before saving
@@ -85,7 +93,7 @@
 ;; Go Autocomplete
 (use-package go-autocomplete
   :load-path "go")
-  
+
 ;; Flycheck
 (use-package flycheck
   :ensure t
@@ -93,7 +101,7 @@
   (add-hook 'after-init-hook #'global-flycheck-mode)
   (setq-default flycheck-emacs-lisp-load-path 'inherit) ; Inherit the loadpath for elisp checks
   (defvar flycheck-check-syntax-automatically '(mode-enabled save)))
-  
+
 ;; Rainbow Delimiters
 (use-package rainbow-delimiters
   :ensure t
@@ -109,15 +117,19 @@
 ;; Helm
 (use-package helm
   :ensure t
-  :bind ("M-x" . helm-M-x)
+  :bind
+  ("M-x" . helm-M-x)
+  ("C-x C-f" . helm-find-files)
   :init
   (require 'helm-config)
   (helm-mode 1)
   (defvar helm-buffers-fuzzy-matching t)
   (defvar helm-recentf-fuzzy-match t)
   (defvar helm-M-x-fuzzy-match t)
-  (setq helm-autoresize-mode t)
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
+  (declare-function helm-autoresize-mode "helm")  ;; To supress warnings
+  (helm-autoresize-mode 1)
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  (advice-add 'helm-ff-delete-char-backward :around #'helm-find-files-smart-delete))
 
 ;; Electric pair mode
 (electric-pair-mode t)
@@ -139,6 +151,54 @@
 (use-package helm-projectile
   :ensure t
   :init (helm-projectile-on))
+
+;; Whitespace mode
+;; Currently highlighting lines over 80 chars long and trailing spaces
+(use-package whitespace
+  :ensure t
+  :init
+  (setq whitespace-line-column 80) ;; Limit line length to 80 chars
+  (setq whitespace-style '(face lines-tail trailing)))
+
+;; -------- Non Use-Package --------
+
+;; Make ansi-mode better
+(add-hook 'term-mode-hook #'better-ansi-term-hook)
+
+;; Display line numbers on all prog-mode buffers
+(add-hook 'prog-mode-hook 'linum-mode)
+
+;; Flyspell on all programming buffers
+(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+;; Whitespace mode on prog mode
+(add-hook 'prog-mode-hook 'whitespace-mode)
+
+;; -------- Functions -----------
+
+(defun helm-find-files-smart-delete (orig-func &rest args)
+  "Check for editing of helm input then call ORIG-FUNC with ARGS.
+The function is designed to be used as an advice function around
+helm-ff-delete-char-backward.  The function will check to see if we are on
+the end of a path and if we are then backspace will move us up a level instead
+of deleting a single character.  This is designed to somewhat mimic the
+functionality of 'ido-mode' for find-files."
+  (declare-function helm-find-files-initial-input "helm") ;; To supress warnings
+  (declare-function helm-find-files-up-one-level "helm")  ;; To supress warnings
+  (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
+      (helm-find-files-up-one-level 1)
+    (apply orig-func args)))
+
+(defun ansi-term-paste ()
+  "Allow you to paste in the 'ansi-term' by switching to line mode first."
+  (interactive)
+  (term-line-mode)
+  (yank)
+  (term-char-mode))
+
+(defun better-ansi-term-hook ()
+  "Make 'ansi-term' better with some custom code."
+  (define-key term-raw-map (kbd "s-v") #'ansi-term-paste))
 
 ;; Disable bell for certain circumstances
 (defun intelligent-bell ()
