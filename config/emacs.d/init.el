@@ -174,6 +174,8 @@
 ;; Whitespace mode on prog mode
 (add-hook 'prog-mode-hook 'whitespace-mode)
 
+(column-number-mode)
+
 ;; -------- Functions -----------
 
 (defun helm-find-files-smart-delete (orig-func &rest args)
