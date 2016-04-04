@@ -202,22 +202,6 @@ functionality of 'ido-mode' for find-files."
   "Make 'ansi-term' better with some custom code."
   (define-key term-raw-map (kbd "s-v") #'ansi-term-paste))
 
-;; Disable bell for certain circumstances
-(defun intelligent-bell ()
-  "Disable the bell for certain common and personally unwanted circumstances."
-  (unless (memq this-command
-		'(isearch-abort
-		  abort-recursive-edit
-	 	  exit-minibuffer
-		  keyboard-quit
-		  mwheel-scroll
-		  down
-		  up
-		  next-line
-		  previous-line
-		  backward-char
-		  forward-char))
-    (ding)))
-(setq ring-bell-function 'intelligent-bell)
-
+;; Disable bell completely
+(setq ring-bell-function 'ignore)
 ;;; init.el ends here
