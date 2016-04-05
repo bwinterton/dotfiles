@@ -6,4 +6,5 @@ export GOPATH=~/dev/go
 export PATH="$PATH:$GOPATH/bin"
 
 # Exports for Rust
-export RUST_SRC_PATH=~/dev/rust/src
+export RUST_SRC_PATH=/usr/local/src/rust
+export PATH="$HOME/.cargo/bin:$PATH"
