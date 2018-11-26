@@ -28,9 +28,9 @@
 (defun set-exec-path-from-env()
   "Set the 'exec-path' variable to include the $PATH from the shell when in windowed mode."
   (let ((path-from-shell (replace-regexp-in-string
-			  "[ \t\n]*$"
-			  ""
-			  (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+						  "[ \t\n]*$"
+						  ""
+						  (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
@@ -40,7 +40,10 @@
 (setq gc-cons-threshold 20000000) ; Set emacs to run GC every 20MB allocated (default is .76MB)
 
 ;; Set default font
-(add-to-list 'default-frame-alist '(font . "Anonymous Pro-12"))
+(add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+
+;; Set default indentation
+(setq-default tab-width 4)
 
 ;; Inhibit startup message
 (setq inhibit-startup-message t)
@@ -52,6 +55,12 @@
       kept-new-versions 2
       kept-old-versions 2
       version-control t)
+
+;; Smooth-er Scrolling
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
 
 ;; Material theme
 (use-package material-theme
@@ -72,6 +81,19 @@
   :init
   (evil-mode 1))
 
+;; Company Mode
+(use-package company
+  :ensure t
+  :bind
+  ("TAB" . company-indent-or-complete-common)
+  ("<return>" . nil) ;; unbind the freaking enter button
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-idle-delay .2)
+  (setq company-echo-delay 0)
+  (setq company-tooltip-align-annotations t)
+  (setq company-minimum-prefix-length 1))
+
 ;; Go Mode
 (use-package go-mode
   :ensure t
@@ -80,19 +102,22 @@
   (setq gofmt-command "goimports")
   (add-hook 'go-mode-hook #'go-awesome-mode-hook))
 
-
 (defun go-awesome-mode-hook ()
   "Run all of the configuration settings for Golang when this hook is called."
   (setq tab-width 4)
   (setq indent-tabs-mode 1)
-  ; Call Gofmt before saving
+										; Call Gofmt before saving
   (add-hook 'before-save-hook 'gofmt-before-save)
-  ; Godef jump key binding
+										; Godef jump key binding
   (local-set-key (kbd "C-g j") 'godef-jump))
 
-;; Go Autocomplete
-(use-package go-autocomplete
-  :load-path "go")
+;; Go Company
+(use-package company-go
+  :ensure t
+  :init
+  (with-eval-after-load 'company
+    (add-to-list 'company-backends 'company-go)))
+
 
 ;; Flycheck
 (use-package flycheck
@@ -129,16 +154,12 @@
   (declare-function helm-autoresize-mode "helm")  ;; To supress warnings
   (helm-autoresize-mode 1)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  ;; ignore all star buffers except scratch and ansi
+  ;;(defvar helm-boring-buffer-regex-list '("\\*[hH]elm.*" "\\*magit.*"))
   (advice-add 'helm-ff-delete-char-backward :around #'helm-find-files-smart-delete))
 
 ;; Electric pair mode
 (electric-pair-mode t)
-
-;; Auto-complete mode
-(use-package auto-complete
-  :ensure t
-  :init
-  (ac-config-default))
 
 ;; Projectile
 (use-package projectile
@@ -159,6 +180,71 @@
   :init
   (setq whitespace-line-column 80) ;; Limit line length to 80 chars
   (setq whitespace-style '(face lines-tail trailing)))
+
+;; ------------- Rust -------------
+
+;; Racer
+(use-package racer
+  :ensure t
+  :init
+  (add-hook 'racer-mode-hook #'eldoc-mode))
+
+;; Rust Flycheck
+(use-package flycheck-rust
+  :ensure t
+  :init
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+(use-package company-racer
+  :ensure t
+  :init
+  (with-eval-after-load 'company
+    (add-to-list 'company-backends 'company-racer)))
+
+(use-package rust-mode
+  :ensure t
+  :init
+  (define-key rust-mode-map (kbd "M-.") #'racer-find-definition)
+  (add-hook 'rust-mode-hook #'racer-mode))
+
+
+;; ----------- Scala --------------
+
+;; Ensime
+(use-package ensime
+  :ensure t
+  :commands ensime ensime-mode)
+
+(add-hook 'scala-mode-hook 'ensime-mode)
+
+
+;; ---------- Clojure -------------
+
+(use-package clojure-mode
+  :ensure t)
+
+(use-package cider
+  :ensure t)
+
+;; ---------- Markdown ------------
+
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+
+;; --------- Javascript -----------
+
+(defvar js-indent-level)
+(setq js-indent-level 4)
+
+;; ----------- YAML ---------------
+
+(use-package yaml-mode
+  :ensure t
+  :mode (("\\.yml" . yaml-mode))
+  :bind ("C-m" . newline-and-indent))
 
 ;; -------- Non Use-Package --------
 
@@ -201,6 +287,18 @@ functionality of 'ido-mode' for find-files."
 (defun better-ansi-term-hook ()
   "Make 'ansi-term' better with some custom code."
   (define-key term-raw-map (kbd "s-v") #'ansi-term-paste))
+
+(defun kill-all-buffers ()
+  "Kill all buffers."
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
+
+(defun restart-buffers ()
+  "Kill all buffers and return to scratch."
+  (interactive)
+  (kill-all-buffers)
+  (switch-to-buffer (get-buffer-create "*scratch*"))
+  (insert initial-scratch-message))
 
 ;; Disable bell completely
 (setq ring-bell-function 'ignore)
