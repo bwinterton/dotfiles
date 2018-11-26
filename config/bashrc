@@ -12,3 +12,13 @@ source ~/.zshenv
 
 ## Load the zsh aliases here as well
 source ~/.zsh_aliases
+
+## Exercism Autocomplete
+if [ -f ~/.config/exercism/exercism_completion.bash ]; then
+  . ~/.config/exercism/exercism_completion.bash
+fi
+
+## Homebrew's Autcompletes
+if [ -f /usr/local/etc/bash_completion ]; then
+    . /usr/local/etc/bash_completion
+fi
