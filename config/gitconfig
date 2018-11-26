@@ -1,0 +1,7 @@
+[user]
+	email = bwinterton@gmail.com
+	name = Brayden Winterton
+[push]
+	default = current
+[core]
+	excludesfile = /Users/bcwinter/.gitignore_global

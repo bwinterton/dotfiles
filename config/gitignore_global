@@ -1,0 +1,15 @@
+# Ignore VS Code settings
+.vscode
+.DS_Store
+*.dSYM
+
+
+# VS Code java 
+.settings
+.classpath
+.factorypath
+.project
+
+# Intellij
+.idea
+*.iml
