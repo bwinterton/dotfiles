@@ -3,7 +3,6 @@
 .DS_Store
 *.dSYM
 
-
 # VS Code java 
 .settings
 .classpath
@@ -13,3 +12,6 @@
 # Intellij
 .idea
 *.iml
+
+# Pyenv
+.python-version
