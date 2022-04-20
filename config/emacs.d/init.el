@@ -14,13 +14,12 @@
 ;;                 - Pele
 ")
 
-
 ;; Include term for use of hooks later on
 (require 'term)
 
-;; Include Marmalade and MELPA repos
+;; Include MELPA repo and initialize package
 (require 'package)
-(push '("melpa" . "http://melpa.milkbox.net/packages/")
+(push '("melpa" . "https://melpa.org/packages/")
       package-archives)
 (package-initialize)
 
@@ -31,16 +30,19 @@
 						  "[ \t\n]*$"
 						  ""
 						  (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
+;;    (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
 (when window-system (set-exec-path-from-env)) ; Only set the path when run in windowed mode (not necessary in shell)
 
-;; Tune Emacs GC (This is mostly to speed up flx-ido)
-(setq gc-cons-threshold 20000000) ; Set emacs to run GC every 20MB allocated (default is .76MB)
+;; Tune Emacs GC
+(setq gc-cons-threshold 100000000) ; Set emacs to run GC every 100MB allocated (default is .76MB)
+
+;; Increase Process read output max
+(setq read-process-output-max (* 1024 1024)) ;; 1mb, as suggested by lsp-mode
 
 ;; Set default font
-(add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+(add-to-list 'default-frame-alist '(font . "Fira Code-11"))
 
 ;; Set default indentation
 (setq-default tab-width 4)
@@ -57,10 +59,15 @@
       version-control t)
 
 ;; Smooth-er Scrolling
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+;(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-scroll-amount '(3 ((shift) . 1))) ;; one line at a time
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
+
+;; Disable bars
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(tool-bar-mode -1)
 
 ;; Material theme
 (use-package material-theme
@@ -85,8 +92,11 @@
 (use-package company
   :ensure t
   :bind
-  ("TAB" . company-indent-or-complete-common)
-  ("<return>" . nil) ;; unbind the freaking enter button
+  (:map company-active-map
+	   ("<return>" . nil)
+	   ([13] . nil)
+	   ("TAB" . company-complete-selection)
+	   ("<tab>" . company-complete-selection))
   :init
   (add-hook 'after-init-hook 'global-company-mode)
   (setq company-idle-delay .2)
@@ -94,11 +104,93 @@
   (setq company-tooltip-align-annotations t)
   (setq company-minimum-prefix-length 1))
 
+
+;; ------------- LSP -------------
+
+(use-package lsp-mode
+  :ensure t
+  :hook ((go-mode . lsp-deferred)
+		 (python-mode . lsp-deferred))
+  :commands (lsp lsp-deferred))
+
+(use-package lsp-ui
+  :ensure t
+  :hook (lsp-mode . lsp-ui-mode)
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-position 'top))
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
+
+(use-package helm-lsp
+  :ensure t
+  :commands helm-lsp-workspace-symbol)
+
+;; ------------- Python -------------
+
+(add-hook 'python-mode-hook
+		  (lambda ()
+			(defvar python-indent-offset)
+			(setq python-indent-offset 4)))
+
+;; ------------- Promela -------------
+
+(use-package promela-mode
+  :load-path "promela-mode"
+  :mode "\\.pml\\'")
+
+;; ------------- Rego/OPA -------------
+
+(use-package reformatter
+  :ensure t)
+
+(use-package rego-mode
+  :ensure t
+  :custom
+  (rego-repl-executable "/usr/bin/opa")
+  (rego-opa-command "/usr/bin/opa"))
+
+;; ------------- Racket -------------
+
+(use-package racket-mode
+  :ensure t)
+
+;; ------------- Julia -------------
+
+(use-package julia-mode
+  :ensure t)
+
+;; ------------- Elixir -------------
+
+(use-package elixir-mode
+  :ensure t)
+
+;; ------------- Haskell -------------
+
+(use-package haskell-mode
+  :ensure t)
+
+;; ------------- Terraform -------------
+
+(use-package terraform-mode
+  :ensure t
+  :hook (terraform-mode . terraform-format-on-save-mode))
+
+;; ------------- Prolog -------------
+
+(setq auto-mode-alist
+  (cons (cons "\\.pl" 'prolog-mode)
+     auto-mode-alist))
+
+;; ------------- Golang -------------
+
 ;; Go Mode
 (use-package go-mode
   :ensure t
   :init
-  (setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
+  ;;(setenv "GOPATH" (shell-command-to-string "$SHELL --login -i -c 'echo -n $GOPATH'")) ; set the $GOPATH
   (setq gofmt-command "goimports")
   (add-hook 'go-mode-hook #'go-awesome-mode-hook))
 
@@ -106,9 +198,14 @@
   "Run all of the configuration settings for Golang when this hook is called."
   (setq tab-width 4)
   (setq indent-tabs-mode 1)
-										; Call Gofmt before saving
+
+  ;; Disable Flymake
+  (flymake-mode -1)
+
+  ;; Call Gofmt before saving
   (add-hook 'before-save-hook 'gofmt-before-save)
-										; Godef jump key binding
+
+  ;; Godef jump key binding
   (local-set-key (kbd "C-g j") 'godef-jump))
 
 ;; Go Company
@@ -118,6 +215,11 @@
   (with-eval-after-load 'company
     (add-to-list 'company-backends 'company-go)))
 
+;; Go Impl
+(use-package go-impl
+  :ensure t)
+
+;; ------------- Misc -------------
 
 ;; Flycheck
 (use-package flycheck
@@ -164,9 +266,12 @@
 ;; Projectile
 (use-package projectile
   :ensure t
+  :bind-keymap
+  ("C-x p" . projectile-command-map)
   :init
-  (projectile-global-mode)
-  (setq projectile-completion-system 'helm))
+  (setq projectile-completion-system 'helm)
+  :config
+  (projectile-mode +1))
 
 ;; Helm-projectile
 (use-package helm-projectile
@@ -207,6 +312,18 @@
   (define-key rust-mode-map (kbd "M-.") #'racer-find-definition)
   (add-hook 'rust-mode-hook #'racer-mode))
 
+;; ----------- Lua --------------
+
+(use-package lua-mode
+  :ensure t)
+
+;; ----------- Ace-Window --------------
+
+(use-package ace-window
+  :ensure t
+  :bind ("C-x w" . ace-window)
+  :config
+  (setq aw-dispatch-always t))
 
 ;; ----------- Scala --------------
 
@@ -216,7 +333,6 @@
   :commands ensime ensime-mode)
 
 (add-hook 'scala-mode-hook 'ensime-mode)
-
 
 ;; ---------- Clojure -------------
 
@@ -245,6 +361,12 @@
   :ensure t
   :mode (("\\.yml" . yaml-mode))
   :bind ("C-m" . newline-and-indent))
+
+;; --------- ASCIIDoc -------------
+
+(use-package adoc-mode
+  :ensure t
+  :mode "\\.adoc\\'")
 
 ;; -------- Non Use-Package --------
 
@@ -303,3 +425,19 @@ functionality of 'ido-mode' for find-files."
 ;; Disable bell completely
 (setq ring-bell-function 'ignore)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+	(ace-window lua-mode go-impl haskell-mode reformatter elixir-mode terraform-mode julia-mode racket-mode adoc-mode yaml-mode use-package rainbow-delimiters racer markdown-mode magit helm-projectile flycheck-rust evil ensime company-racer company-go cider)))
+ '(rego-opa-command "/usr/bin/opa")
+ '(rego-repl-executable "/usr/bin/opa"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

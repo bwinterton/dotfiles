@@ -2,13 +2,13 @@
 # ~/.bashrc
 #
 
-# If not running interactively, don't do anything
+## Load the zsh env here as well
+source ~/.zshenv
+
+# If not running interactively, don't do anything else
 [[ $- != *i* ]] && return
 
 PS1='[\u@\h \W]\$ '
-
-## Load the zsh env here as well
-source ~/.zshenv
 
 ## Load the zsh aliases here as well
 source ~/.zsh_aliases
@@ -22,3 +22,7 @@ fi
 if [ -f /usr/local/etc/bash_completion ]; then
     . /usr/local/etc/bash_completion
 fi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

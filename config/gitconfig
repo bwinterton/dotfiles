@@ -4,4 +4,6 @@
 [push]
 	default = current
 [core]
-	excludesfile = /Users/bcwinter/.gitignore_global
+	excludesfile = ~/.gitignore_global
+[pull]
+	rebase = false

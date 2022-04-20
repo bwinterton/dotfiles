@@ -1,6 +1,9 @@
 export VISUAL=vim
 export EDITOR=vim
 
+# Home bin
+export PATH="$PATH:$HOME/bin"
+
 # Exports for Go
 export GOPATH=~/dev/go
 export PATH="$PATH:$GOPATH/bin"
@@ -14,6 +17,9 @@ export PATH="$PATH:/opt/activator/bin"
 
 # Poetry bin
 export PATH="$PATH:$HOME/.poetry/bin"
+
+# Local bin
+export PATH="$PATH:$HOME/.local/bin"
 
 # MacOS Specifics
 if [[ `uname` == 'Darwin' ]]; then
