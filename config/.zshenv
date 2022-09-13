@@ -27,14 +27,22 @@ export NEW_PATH="$NEW_PATH:$HOME/.local/bin"
 
 # MacOS Specifics
 if [[ `uname` == 'Darwin' ]]; then
+	# Homebrew prefix, cellar, and repository depends on architecture
+	if [ `uname -p` == "arm" ]; then
+		export HOMEBREW_PREFIX="/opt/homebrew";
+		export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+		export HOMEBREW_REPOSITORY="/opt/homebrew";
+	else
+		export HOMEBREW_PREFIX="/usr/local";
+		export HOMEBREW_CELLAR="/usr/local/Cellar";
+		export HOMEBREW_REPOSITORY="/usr/local/Homebrew";
+	fi
 
 	# Homebrew Python 3 default
-	export NEW_PATH="/opt/homebrew/opt/python/libexec/bin:$NEW_PATH"
-	export HOMEBREW_PREFIX="/opt/homebrew";
-	export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-	export HOMEBREW_REPOSITORY="/opt/homebrew";
-	export NEW_PATH="/opt/homebrew/bin:/opt/homebrew/sbin${NEW_PATH+:$NEW_PATH}";
-	export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-	export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+	export NEW_PATH="$HOMEBREW_PREFIX/opt/python/libexec/bin:$NEW_PATH"
 
+	# Homebrew Path, Man, and Info
+	export NEW_PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin${NEW_PATH+:$NEW_PATH}";
+	export MANPATH="$HOMEBREW_PREFIX/share/man${MANPATH+:$MANPATH}:";
+	export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}";
 fi

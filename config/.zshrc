@@ -26,6 +26,14 @@ promptinit
 # Include aliases
 source ~/.zsh_aliases
 
+# Include Work settings if they exist
+if [ -f ~/.zsh_work ]; then
+	source ~/.zsh_aliases
+fi
+
+# Reverse search
+bindkey "^R" history-incremental-pattern-search-backward
+
 # Process PATH
 ## This came around as part of a fix for the way that
 ## Apple handles the path population in MacOS for ZSH.

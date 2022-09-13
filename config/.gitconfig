@@ -7,3 +7,6 @@
 	excludesfile = ~/.gitignore_global
 [pull]
 	rebase = false
+
+[includeIf "gitdir:~/dev/work/"] # Work specific settings
+	path = .gitconfig-work
